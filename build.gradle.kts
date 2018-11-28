@@ -1,7 +1,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.2.70"
+    kotlin("jvm") version "1.3.50"
     id("com.github.johnrengelman.shadow") version "2.0.4"
 }
 
@@ -9,6 +10,12 @@ group = "com.github.holgerbrandl.kscript.launcher"
 
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
+
+    compile(kotlin("scripting-common"))
+    compile(kotlin("scripting-jvm"))
+    compile(kotlin("scripting-jvm-host-embeddable"))
+    compile(kotlin("scripting-compiler-embeddable"))
+    compile(kotlin("main-kts"))
 
     compile("com.offbytwo:docopt:0.6.0.20150202")
 
@@ -31,6 +38,10 @@ dependencies {
 
 repositories {
     jcenter()
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 val shadowJar by tasks.getting(ShadowJar::class) {
