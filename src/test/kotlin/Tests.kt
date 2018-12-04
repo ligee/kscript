@@ -25,7 +25,7 @@ class Tests {
             "log4j:log4j:1.2.14"
         )
 
-        Script(lines).collectDependencies() shouldBe expected
+        Script(lines).resolveDependencies() shouldBe expected
     }
 
     @Test
@@ -38,7 +38,7 @@ class Tests {
             "com.github.holgerbrandl:kscript-annotations:1.4"
         )
 
-        Script(lines).collectDependencies() shouldBe expected
+        Script(lines).resolveDependencies() shouldBe expected
 
         // but reject comma separation within dependency entries
         // note: disabled because quits kscript by design
@@ -61,7 +61,7 @@ class Tests {
             "com.github.holgerbrandl:kscript-annotations:1.4"
         )
 
-        Script(lines).collectDependencies() shouldBe expected
+        Script(lines).resolveDependencies() shouldBe expected
     }
 
 
@@ -80,7 +80,7 @@ class Tests {
                 MavenRepo("imagej-releases", "http://maven.imagej.net/content/repositories/releases")
             )
 
-            collectDependencies() shouldBe listOf(
+            resolveDependencies() shouldBe listOf(
                 "net.clearvolume:cleargl:2.0.1",
                 "log4j:log4j:1.2.14",
                 "com.github.holgerbrandl:kscript-annotations:1.4"
@@ -115,7 +115,7 @@ class Tests {
                     MavenRepo("spaceAroundCredentials2", "http://maven.imagej.net/content/repositories/snapshots", "user", "pass")
             )
 
-            collectDependencies() shouldBe listOf(
+            resolveDependencies() shouldBe listOf(
                     "net.clearvolume:cleargl:2.0.1",
                     "log4j:log4j:1.2.14",
                     "com.github.holgerbrandl:kscript-annotations:1.4"

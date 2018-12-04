@@ -32,12 +32,7 @@ fun resolveIncludes(template: File, includeContext: URI = template.parentFile.to
             if (isIncludeDirective(line)) {
                 val include = extractIncludeTarget(line)
 
-                val includeURL = when {
-                    isUrl(include) -> URL(include)
-                    include.startsWith("/") -> File(include).toURI().toURL()
-                    include.startsWith("~/") -> File(System.getenv("HOME")!! + include.substring(1)).toURI().toURL()
-                    else -> includeContext.resolve(URI(include.removePrefix("./"))).toURL()
-                }
+                val includeURL = includeToUrl(include, includeContext)
 
                 // test if include was processed already (aka include duplication, see #151)
                 if (includes.map { it.path }.contains(includeURL.path)) {
@@ -63,11 +58,24 @@ fun resolveIncludes(template: File, includeContext: URI = template.parentFile.to
     return IncludeResult(script.consolidateStructure().createTmpScript(), includes)
 }
 
+internal fun includeToUrl(include: String, includeContext: URI): URL {
+    return when {
+        isUrl(include) -> URL(include)
+        include.startsWith("/") -> File(include).toURI().toURL()
+        include.startsWith("~/") -> File(System.getenv("HOME")!! + include.substring(1)).toURI().toURL()
+        else -> includeContext.resolve(URI(include.removePrefix("./"))).toURL()
+    }
+}
+
 internal fun isUrl(s: String) = s.startsWith("http://") || s.startsWith("https://")
 
 private const val INCLUDE_ANNOT_PREFIX = "@file:Include("
 
-internal fun isIncludeDirective(line: String) = line.startsWith("//INCLUDE") || line.startsWith(INCLUDE_ANNOT_PREFIX)
+val INCLUDE_DIRECTIVE_PREFIX = "//INCLUDE"
+
+internal fun isIncludeDirective(line: String): Boolean {
+    return line.startsWith(INCLUDE_DIRECTIVE_PREFIX) || line.startsWith(INCLUDE_ANNOT_PREFIX)
+}
 
 
 internal fun extractIncludeTarget(incDirective: String) = when {

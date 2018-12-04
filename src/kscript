@@ -32,5 +32,24 @@ if [[ -z "$KOTLIN_HOME" ]]; then KOTLIN_EXEC="kotlin"; else KOTLIN_EXEC="$KOTLIN
 ## expose the name of the script being run to the script itself
 export KSCRIPT_FILE="$1"
 
-## run it using command substitution to have just the user process once kscript is done
-eval "exec $(${KOTLIN_EXEC} -classpath ${jarPath} kscript.app.KscriptKt "$@")"
+for i in "$@"
+do
+    case $i in
+        --experimental)
+        EXPERIMENTAL=1
+        ;;
+    esac
+done
+
+if [[ $EXPERIMENTAL -eq 1 ]]
+then
+    ## run it using command substitution to have just the user process once kscript is done
+    SCRIPT_OUT="$(${KOTLIN_EXEC} -Dkotlin.script.classpath=${jarPath} -classpath ${jarPath} kscript.app.KscriptKt "$@")"
+
+    echo "${SCRIPT_OUT}"
+else
+    ## run it using command substitution to have just the user process once kscript is done
+    SCRIPT_OUT="$(${KOTLIN_EXEC} -classpath ${jarPath} kscript.app.KscriptKt "$@")"
+
+    eval "${SCRIPT_OUT}"
+fi

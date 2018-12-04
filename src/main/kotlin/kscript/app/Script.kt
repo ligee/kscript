@@ -109,12 +109,12 @@ private fun extractEntryPoint(line: String) = when {
 //
 
 
-private val DEPS_COMMENT_PREFIX = "//DEPS "
+internal val DEPS_COMMENT_PREFIX = "//DEPS "
 private val DEPS_ANNOT_PREFIX = "^@file:DependsOn[(]".toRegex()
 private val DEPSMAVEN_ANNOT_PREFIX = "^@file:DependsOnMaven[(]".toRegex()
 
 
-fun Script.collectDependencies(): List<String> {
+fun Script.resolveDependencies(): List<String> {
     // Make sure that dependencies declarations are well formatted
     if (lines.any { it.startsWith("// DEPS") }) {
         error("Dependencies must be declared by using the line prefix //DEPS")
@@ -173,7 +173,7 @@ internal fun extractDependencies(line: String) = when {
 }
 
 
-private fun isDependDeclare(line: String) =
+internal fun isDependDeclare(line: String) =
     line.startsWith(DEPS_COMMENT_PREFIX) || line.contains(DEPS_ANNOT_PREFIX) || line.contains(DEPSMAVEN_ANNOT_PREFIX)
 
 
@@ -216,13 +216,13 @@ fun Script.collectRepos(): List<MavenRepo> {
 //
 
 
+val KOTLIN_OPTIONS_PREFIX = "//KOTLIN_OPTS "
+
 /**
  * Collect runtime options declared using //KOTLIN_OPTS or @file:KotlinOpts
  */
 fun Script.collectRuntimeOptions(): String {
-    val koptsPrefix = "//KOTLIN_OPTS "
-
-    var kotlinOpts = lines.filter { it.startsWith(koptsPrefix) }.map { it.replaceFirst(koptsPrefix, "").trim() }
+    var kotlinOpts = lines.filter { it.startsWith(KOTLIN_OPTIONS_PREFIX) }.map { it.replaceFirst(KOTLIN_OPTIONS_PREFIX, "").trim() }
 
     //support for @file:KotlinOpts see #47
     val annotatonPrefix = "^@file:KotlinOpts[(]".toRegex()
@@ -241,13 +241,13 @@ fun Script.collectRuntimeOptions(): String {
 }
 
 
+val COMPILER_OPTIONS_PREFIX = "//COMPILER_OPTS "
+
 /**
  * Collect compiler options declared using //COMPILER_OPTS or @file:CompilerOpts
  */
 fun Script.collectCompilerOptions(): String {
-    val koptsPrefix = "//COMPILER_OPTS "
-
-    var compilerOpts = lines.filter { it.startsWith(koptsPrefix) }.map { it.replaceFirst(koptsPrefix, "").trim() }
+    var compilerOpts = lines.filter { it.startsWith(COMPILER_OPTIONS_PREFIX) }.map { it.replaceFirst(COMPILER_OPTIONS_PREFIX, "").trim() }
 
     val annotatonPrefix = "^@file:CompilerOpts[(]".toRegex()
     compilerOpts += lines

@@ -10,6 +10,7 @@ import java.io.InputStreamReader
 import java.net.URI
 import java.net.URL
 import java.net.UnknownHostException
+import kotlin.script.experimental.host.toScriptSource
 import kotlin.system.exitProcess
 
 
@@ -43,6 +44,7 @@ Options:
  -s --silent             Suppress status logging to stderr
  --package               Package script and dependencies into self-dependent binary
  --add-bootstrap-header  Prepend bash header that installs kscript if necessary
+ --experimental          Use Kotlin experimental scripting infrastructure
 
 
 Copyright : 2017 Holger Brandl
@@ -58,6 +60,8 @@ val KSCRIPT_CACHE_DIR = System.getenv("KSCRIPT_CACHE_DIR")?.let { File(it) }
 
 // use lazy here prevent empty dirs for regular scripts https://github.com/holgerbrandl/kscript/issues/130
 val SCRIPT_TEMP_DIR by lazy { createTempDir() }
+
+var directEvaluation = false
 
 @Language("sh")
 private val BOOTSTRAP_HEADER = """
@@ -87,6 +91,8 @@ fun main(args: Array<String>) {
     val docopt = DocOptWrapper(kscriptArgs, USAGE)
     val loggingEnabled = !docopt.getBoolean("silent")
 
+    val useScriptDef = docopt.getBoolean("experimental")
+    directEvaluation = useScriptDef
 
     // create cache dir if it does not yet exist
     if (!KSCRIPT_CACHE_DIR.isDirectory) {
@@ -139,12 +145,19 @@ fun main(args: Array<String>) {
     // and finally resolve all includes (see https://github.com/holgerbrandl/kscript/issues/34)
     val (scriptFile, includeURLs) = resolveIncludes(resolvePreambles(rawScript, enableSupportApi), includeContext)
 
+    if (useScriptDef) {
+        val host = KscriptHost(KSCRIPT_CACHE_DIR)
+
+        val res = host.eval(scriptFile.toScriptSource(), userArgs)
+
+        quit(res)
+    }
 
     val script = Script(scriptFile)
 
 
     // Find all //DEPS directives and concatenate their values
-    val dependencies = (script.collectDependencies() + Script(rawScript).collectDependencies()).distinct()
+    val dependencies = (script.resolveDependencies() + Script(rawScript).resolveDependencies()).distinct()
     val customRepos = (script.collectRepos() + Script(rawScript).collectRepos()).distinct()
 
 

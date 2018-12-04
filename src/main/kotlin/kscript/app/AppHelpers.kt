@@ -116,7 +116,9 @@ fun errorIf(value: Boolean, lazyMessage: () -> Any) {
 }
 
 fun quit(status: Int): Nothing {
-    print(if (status == 0) "true" else "false")
+    if (!directEvaluation) {
+        print(if (status == 0) "true" else "false")
+    }
     exitProcess(status)
 }
 
