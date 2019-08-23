@@ -138,7 +138,10 @@ fun main(args: Array<String>) {
         if (loggingEnabled) {
             info("$rawScript updated")
         }
-        quit(0)
+
+        val res = if (useScriptDef) evalWithScriptingAPI(rawScript, userArgs) else 0
+
+        quit(res)
     }
 
     // post process script (text-processing mode, custom dsl preamble, resolve includes)
@@ -146,9 +149,7 @@ fun main(args: Array<String>) {
     val (scriptFile, includeURLs) = resolveIncludes(resolvePreambles(rawScript, enableSupportApi), includeContext)
 
     if (useScriptDef) {
-        val host = KscriptHost(KSCRIPT_CACHE_DIR)
-
-        val res = host.eval(scriptFile.toScriptSource(), userArgs)
+        val res = evalWithScriptingAPI(scriptFile, userArgs)
 
         quit(res)
     }
@@ -298,6 +299,13 @@ fun main(args: Array<String>) {
         extClassPath += kscript.app.CP_SEPARATOR_CHAR + classpath
 
     println("kotlin ${kotlinOpts} -classpath \"${extClassPath}\" ${execClassName} ${joinedUserArgs} ")
+}
+
+private fun evalWithScriptingAPI(scriptFile: File, userArgs: List<String>): Int {
+    val host = KscriptHost(KSCRIPT_CACHE_DIR)
+
+    val res = host.eval(scriptFile.toScriptSource(), userArgs)
+    return res
 }
 
 
