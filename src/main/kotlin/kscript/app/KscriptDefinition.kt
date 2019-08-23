@@ -1,8 +1,8 @@
 package kscript.app
 
-import org.jetbrains.kotlin.mainKts.impl.IvyResolver
 import org.jetbrains.kotlin.script.util.resolvers.DirectResolver
 import org.jetbrains.kotlin.script.util.resolvers.FlatLibDirectoryResolver
+import org.jetbrains.kotlin.script.util.resolvers.MavenResolver
 import org.jetbrains.kotlin.script.util.resolvers.experimental.BasicArtifactCoordinates
 import org.jetbrains.kotlin.script.util.resolvers.experimental.BasicRepositoryCoordinates
 import org.jetbrains.kotlin.script.util.resolvers.experimental.GenericArtifactCoordinates
@@ -94,7 +94,7 @@ abstract class KscriptConfigurationRefinerBase : RefineScriptCompilationConfigur
             diagnostics: ArrayList<ScriptDiagnostic>
     )
 
-    private val resolvers by lazy { arrayListOf(DirectResolver(), IvyResolver()) }
+    private val resolvers by lazy { arrayListOf(DirectResolver(), MavenResolver()) }
 
     protected fun resolveDependencies(
             diagnostics: ArrayList<ScriptDiagnostic>,

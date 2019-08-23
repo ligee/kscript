@@ -15,7 +15,7 @@ dependencies {
     compile(kotlin("scripting-jvm"))
     compile(kotlin("scripting-jvm-host-embeddable"))
     compile(kotlin("scripting-compiler-embeddable"))
-    compile(kotlin("main-kts"))
+    compile(kotlin("script-util"))
 
     compile("com.offbytwo:docopt:0.6.0.20150202")
 
